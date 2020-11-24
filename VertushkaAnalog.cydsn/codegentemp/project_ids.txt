@@ -1,0 +1,5 @@
+C:\work\PSoC4\VertushkaAnalog\VertushkaAnalog.cydsn\VertushkaAnalog.cyprj|1501c5e2-165e-4320-8bdf-3aa9dc51961e
+C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\default\CyAnnotationLibrary\CyAnnotationLibrary.cylib\CyAnnotationLibrary.cyprj|90d648e7-5f17-4496-aaf3-bb181609e51c
+C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibraryupdates\CyComponentLibraryUpdates.cylib\CyComponentLibraryUpdates.cyprj|1650b93b-2e4f-4752-98ee-20320dcfb68b
+C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cycomponentlibrary\CyComponentLibrary.cylib\CyComponentLibrary.cyprj|6d566f51-363a-434a-9867-c765d68a587c
+C:\Program Files (x86)\Cypress\PSoC Creator\3.3\PSoC Creator\psoc\content\cyprimitives\CyPrimitives.cylib\CyPrimitives.cyprj|5fc7c424-697b-4faf-b2cc-541f0e83031a

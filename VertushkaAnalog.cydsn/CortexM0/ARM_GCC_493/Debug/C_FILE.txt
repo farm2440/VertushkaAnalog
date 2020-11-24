@@ -1,0 +1,1 @@
+'C:\work\PSoC4\VertushkaAnalog\VertushkaAnalog.cydsn\main.c' -o .o -T C_FILE -I 'C:\work\PSoC4\VertushkaAnalog\VertushkaAnalog.cydsn' -I 'C:\work\PSoC4\VertushkaAnalog\VertushkaAnalog.cydsn\Generated_Source\PSoC4' -f 'C:\work\PSoC4\VertushkaAnalog\VertushkaAnalog.cydsn\CortexM0\ARM_GCC_493\Debug\.deps\C_FILE.d'

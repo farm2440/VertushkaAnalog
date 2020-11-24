@@ -1,0 +1,1531 @@
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 1
+
+
+   1              		.cpu cortex-m0
+   2              		.fpu softvfp
+   3              		.eabi_attribute 20, 1
+   4              		.eabi_attribute 21, 1
+   5              		.eabi_attribute 23, 3
+   6              		.eabi_attribute 24, 1
+   7              		.eabi_attribute 25, 1
+   8              		.eabi_attribute 26, 1
+   9              		.eabi_attribute 30, 1
+  10              		.eabi_attribute 34, 0
+  11              		.eabi_attribute 18, 4
+  12              		.code	16
+  13              		.file	"main.c"
+  14              		.text
+  15              	.Ltext0:
+  16              		.cfi_sections	.debug_frame
+  17              		.section	.text.TimedIsr,"ax",%progbits
+  18              		.align	2
+  19              		.global	TimedIsr
+  20              		.code	16
+  21              		.thumb_func
+  22              		.type	TimedIsr, %function
+  23              	TimedIsr:
+  24              	.LFB34:
+  25              		.file 1 ".\\main.c"
+   1:.\main.c      **** /* ========================================
+   2:.\main.c      ****  *
+   3:.\main.c      ****  * Copyright YOUR COMPANY, THE YEAR
+   4:.\main.c      ****  * All Rights Reserved
+   5:.\main.c      ****  * UNPUBLISHED, LICENSED SOFTWARE.
+   6:.\main.c      ****  *
+   7:.\main.c      ****  * CONFIDENTIAL AND PROPRIETARY INFORMATION
+   8:.\main.c      ****  * WHICH IS THE PROPERTY OF your company.
+   9:.\main.c      ****  *
+  10:.\main.c      ****  * ========================================
+  11:.\main.c      **** */
+  12:.\main.c      **** #include <project.h>
+  13:.\main.c      **** 
+  14:.\main.c      **** #define MAX_RPM 1400
+  15:.\main.c      **** #define MIN_RPM 40
+  16:.\main.c      **** #define MAX_HEALTH 5
+  17:.\main.c      **** #define RPM_CHANGE_STEP 20
+  18:.\main.c      **** 
+  19:.\main.c      **** uint32 health = 0;
+  20:.\main.c      **** uint16 targetRPM = 0;
+  21:.\main.c      **** uint16 currentRPM = 0;
+  22:.\main.c      **** uint16 prevRPM = 0;
+  23:.\main.c      **** uint8 blink=0;
+  24:.\main.c      **** 
+  25:.\main.c      **** CY_ISR_PROTO(TimedIsr);
+  26:.\main.c      **** CY_ISR(TimedIsr)
+  27:.\main.c      **** {
+  26              		.loc 1 27 0
+  27              		.cfi_startproc
+  28 0000 08B5     		push	{r3, lr}
+  29              		.cfi_def_cfa_offset 8
+  30              		.cfi_offset 3, -8
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 2
+
+
+  31              		.cfi_offset 14, -4
+  28:.\main.c      ****     //Ако няма връзка с управлението мотора спира
+  29:.\main.c      ****     if(health!=0) health--;
+  32              		.loc 1 29 0
+  33 0002 294B     		ldr	r3, .L13
+  34 0004 1B68     		ldr	r3, [r3]
+  35 0006 002B     		cmp	r3, #0
+  36 0008 03D0     		beq	.L2
+  37              		.loc 1 29 0 is_stmt 0 discriminator 1
+  38 000a 013B     		sub	r3, r3, #1
+  39 000c 264A     		ldr	r2, .L13
+  40 000e 1360     		str	r3, [r2]
+  41 0010 02E0     		b	.L3
+  42              	.L2:
+  30:.\main.c      ****     else   targetRPM=0;
+  43              		.loc 1 30 0 is_stmt 1
+  44 0012 0022     		mov	r2, #0
+  45 0014 244B     		ldr	r3, .L13
+  46 0016 9A80     		strh	r2, [r3, #4]
+  47              	.L3:
+  31:.\main.c      ****     
+  32:.\main.c      ****     if(targetRPM==0) EnablePWM_Write(0);
+  48              		.loc 1 32 0
+  49 0018 234B     		ldr	r3, .L13
+  50 001a 9B88     		ldrh	r3, [r3, #4]
+  51 001c 002B     		cmp	r3, #0
+  52 001e 03D1     		bne	.L4
+  53              		.loc 1 32 0 is_stmt 0 discriminator 1
+  54 0020 0020     		mov	r0, #0
+  55 0022 FFF7FEFF 		bl	EnablePWM_Write
+  56              	.LVL0:
+  57 0026 02E0     		b	.L5
+  58              	.L4:
+  33:.\main.c      ****     else EnablePWM_Write(1);
+  59              		.loc 1 33 0 is_stmt 1
+  60 0028 0120     		mov	r0, #1
+  61 002a FFF7FEFF 		bl	EnablePWM_Write
+  62              	.LVL1:
+  63              	.L5:
+  34:.\main.c      **** 
+  35:.\main.c      ****     if(targetRPM < currentRPM)
+  64              		.loc 1 35 0
+  65 002e 1E4A     		ldr	r2, .L13
+  66 0030 9388     		ldrh	r3, [r2, #4]
+  67 0032 D288     		ldrh	r2, [r2, #6]
+  68 0034 9342     		cmp	r3, r2
+  69 0036 01D2     		bcs	.L6
+  36:.\main.c      ****     currentRPM=targetRPM;
+  70              		.loc 1 36 0
+  71 0038 1B4A     		ldr	r2, .L13
+  72 003a D380     		strh	r3, [r2, #6]
+  73              	.L6:
+  37:.\main.c      ****     /*
+  38:.\main.c      ****     {
+  39:.\main.c      ****         if((currentRPM-targetRPM)< RPM_CHANGE_STEP) 
+  40:.\main.c      ****             currentRPM=targetRPM;         
+  41:.\main.c      ****         else
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 3
+
+
+  42:.\main.c      ****             currentRPM -= RPM_CHANGE_STEP;
+  43:.\main.c      ****     }*/
+  44:.\main.c      ****     if(targetRPM > currentRPM)
+  74              		.loc 1 44 0
+  75 003c 1A4A     		ldr	r2, .L13
+  76 003e D288     		ldrh	r2, [r2, #6]
+  77 0040 9342     		cmp	r3, r2
+  78 0042 08D9     		bls	.L7
+  45:.\main.c      ****     {
+  46:.\main.c      ****         if((targetRPM-currentRPM)<RPM_CHANGE_STEP) 
+  79              		.loc 1 46 0
+  80 0044 991A     		sub	r1, r3, r2
+  81 0046 1329     		cmp	r1, #19
+  82 0048 02DC     		bgt	.L8
+  47:.\main.c      ****             currentRPM=targetRPM;
+  83              		.loc 1 47 0
+  84 004a 174A     		ldr	r2, .L13
+  85 004c D380     		strh	r3, [r2, #6]
+  86 004e 02E0     		b	.L7
+  87              	.L8:
+  48:.\main.c      ****         else
+  49:.\main.c      ****             currentRPM += RPM_CHANGE_STEP;
+  88              		.loc 1 49 0
+  89 0050 1432     		add	r2, r2, #20
+  90 0052 154B     		ldr	r3, .L13
+  91 0054 DA80     		strh	r2, [r3, #6]
+  92              	.L7:
+  50:.\main.c      ****     }
+  51:.\main.c      ****     
+  52:.\main.c      ****     if(currentRPM!=prevRPM)
+  93              		.loc 1 52 0
+  94 0056 144B     		ldr	r3, .L13
+  95 0058 D888     		ldrh	r0, [r3, #6]
+  96 005a 1B89     		ldrh	r3, [r3, #8]
+  97 005c 9842     		cmp	r0, r3
+  98 005e 08D0     		beq	.L9
+  53:.\main.c      ****     {
+  54:.\main.c      ****         PWM_WritePeriod(1600-currentRPM);
+  99              		.loc 1 54 0
+ 100 0060 C823     		mov	r3, #200
+ 101 0062 DB00     		lsl	r3, r3, #3
+ 102 0064 181A     		sub	r0, r3, r0
+ 103 0066 80B2     		uxth	r0, r0
+ 104 0068 FFF7FEFF 		bl	PWM_WritePeriod
+ 105              	.LVL2:
+  55:.\main.c      ****         prevRPM=currentRPM;
+ 106              		.loc 1 55 0
+ 107 006c 0E4B     		ldr	r3, .L13
+ 108 006e DA88     		ldrh	r2, [r3, #6]
+ 109 0070 1A81     		strh	r2, [r3, #8]
+ 110              	.L9:
+  56:.\main.c      ****     }
+  57:.\main.c      ****     
+  58:.\main.c      ****     if(currentRPM==0) 
+ 111              		.loc 1 58 0
+ 112 0072 0D4B     		ldr	r3, .L13
+ 113 0074 DB88     		ldrh	r3, [r3, #6]
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 4
+
+
+ 114 0076 002B     		cmp	r3, #0
+ 115 0078 03D1     		bne	.L10
+  59:.\main.c      ****     {//GREEN LED when no rotation
+  60:.\main.c      ****         LED_G_Write(0);
+ 116              		.loc 1 60 0
+ 117 007a 0020     		mov	r0, #0
+ 118 007c FFF7FEFF 		bl	LED_G_Write
+ 119              	.LVL3:
+ 120 0080 10E0     		b	.L1
+ 121              	.L10:
+  61:.\main.c      ****     }else
+  62:.\main.c      ****     {
+  63:.\main.c      ****         if(blink==0) 
+ 122              		.loc 1 63 0
+ 123 0082 094B     		ldr	r3, .L13
+ 124 0084 9B7A     		ldrb	r3, [r3, #10]
+ 125 0086 002B     		cmp	r3, #0
+ 126 0088 06D1     		bne	.L12
+  64:.\main.c      ****         {
+  65:.\main.c      ****             LED_G_Write(0);
+ 127              		.loc 1 65 0
+ 128 008a 0020     		mov	r0, #0
+ 129 008c FFF7FEFF 		bl	LED_G_Write
+ 130              	.LVL4:
+  66:.\main.c      ****             blink=1;
+ 131              		.loc 1 66 0
+ 132 0090 0122     		mov	r2, #1
+ 133 0092 054B     		ldr	r3, .L13
+ 134 0094 9A72     		strb	r2, [r3, #10]
+ 135 0096 05E0     		b	.L1
+ 136              	.L12:
+  67:.\main.c      ****         }
+  68:.\main.c      ****         else
+  69:.\main.c      ****         {
+  70:.\main.c      ****             LED_G_Write(1);
+ 137              		.loc 1 70 0
+ 138 0098 0120     		mov	r0, #1
+ 139 009a FFF7FEFF 		bl	LED_G_Write
+ 140              	.LVL5:
+  71:.\main.c      ****             blink=0;
+ 141              		.loc 1 71 0
+ 142 009e 0022     		mov	r2, #0
+ 143 00a0 014B     		ldr	r3, .L13
+ 144 00a2 9A72     		strb	r2, [r3, #10]
+ 145              	.L1:
+  72:.\main.c      ****         }
+  73:.\main.c      ****     }
+  74:.\main.c      **** }
+ 146              		.loc 1 74 0
+ 147              		@ sp needed
+ 148 00a4 08BD     		pop	{r3, pc}
+ 149              	.L14:
+ 150 00a6 C046     		.align	2
+ 151              	.L13:
+ 152 00a8 00000000 		.word	.LANCHOR0
+ 153              		.cfi_endproc
+ 154              	.LFE34:
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 5
+
+
+ 155              		.size	TimedIsr, .-TimedIsr
+ 156              		.section	.text.main,"ax",%progbits
+ 157              		.align	2
+ 158              		.global	main
+ 159              		.code	16
+ 160              		.thumb_func
+ 161              		.type	main, %function
+ 162              	main:
+ 163              	.LFB35:
+  75:.\main.c      **** 
+  76:.\main.c      **** 
+  77:.\main.c      **** 
+  78:.\main.c      **** int main()
+  79:.\main.c      **** {
+ 164              		.loc 1 79 0
+ 165              		.cfi_startproc
+ 166 0000 10B5     		push	{r4, lr}
+ 167              		.cfi_def_cfa_offset 8
+ 168              		.cfi_offset 4, -8
+ 169              		.cfi_offset 14, -4
+  80:.\main.c      ****         
+  81:.\main.c      ****     // Max RPM = 255, Limit 120 rpm
+  82:.\main.c      ****     // Motor 800 pulses per rotation, 204000 pulses per minute, 
+  83:.\main.c      ****     // 3400 pulses per sec for 255 rpm
+  84:.\main.c      ****     // PWM Period = 7500/RPM    
+  85:.\main.c      ****    
+  86:.\main.c      ****     
+  87:.\main.c      ****     ADC_Start();
+ 170              		.loc 1 87 0
+ 171 0002 FFF7FEFF 		bl	ADC_Start
+ 172              	.LVL6:
+  88:.\main.c      ****     ADC_StartConvert();
+ 173              		.loc 1 88 0
+ 174 0006 FFF7FEFF 		bl	ADC_StartConvert
+ 175              	.LVL7:
+  89:.\main.c      ****     PWM_Start();
+ 176              		.loc 1 89 0
+ 177 000a FFF7FEFF 		bl	PWM_Start
+ 178              	.LVL8:
+  90:.\main.c      ****     EnablePWM_Write(0);
+ 179              		.loc 1 90 0
+ 180 000e 0020     		mov	r0, #0
+ 181 0010 FFF7FEFF 		bl	EnablePWM_Write
+ 182              	.LVL9:
+  91:.\main.c      ****     LED_G_Write(1);
+ 183              		.loc 1 91 0
+ 184 0014 0120     		mov	r0, #1
+ 185 0016 FFF7FEFF 		bl	LED_G_Write
+ 186              	.LVL10:
+  92:.\main.c      ****     LED_R_Write(1);
+ 187              		.loc 1 92 0
+ 188 001a 0120     		mov	r0, #1
+ 189 001c FFF7FEFF 		bl	LED_R_Write
+ 190              	.LVL11:
+  93:.\main.c      ****     PWM_WritePeriod(0);
+ 191              		.loc 1 93 0
+ 192 0020 0020     		mov	r0, #0
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 6
+
+
+ 193 0022 FFF7FEFF 		bl	PWM_WritePeriod
+ 194              	.LVL12:
+ 195              	.L16:
+  94:.\main.c      ****     uint16 adc = 0;
+  95:.\main.c      **** 
+  96:.\main.c      ****     //Блокира въртенето ако потенциометъра е в позиция р
+  97:.\main.c      ****     do
+  98:.\main.c      ****     {
+  99:.\main.c      ****         ADC_IsEndConversion(ADC_WAIT_FOR_RESULT);
+ 196              		.loc 1 99 0 discriminator 1
+ 197 0026 0220     		mov	r0, #2
+ 198 0028 FFF7FEFF 		bl	ADC_IsEndConversion
+ 199              	.LVL13:
+ 100:.\main.c      ****         adc = ADC_GetResult16(0);
+ 200              		.loc 1 100 0 discriminator 1
+ 201 002c 0020     		mov	r0, #0
+ 202 002e FFF7FEFF 		bl	ADC_GetResult16
+ 203              	.LVL14:
+ 204 0032 84B2     		uxth	r4, r0
+ 205              	.LVL15:
+ 101:.\main.c      ****         LED_G_Write(1);
+ 206              		.loc 1 101 0 discriminator 1
+ 207 0034 0120     		mov	r0, #1
+ 208 0036 FFF7FEFF 		bl	LED_G_Write
+ 209              	.LVL16:
+ 102:.\main.c      ****         LED_R_Write(0);
+ 210              		.loc 1 102 0 discriminator 1
+ 211 003a 0020     		mov	r0, #0
+ 212 003c FFF7FEFF 		bl	LED_R_Write
+ 213              	.LVL17:
+ 103:.\main.c      ****         CyDelay(100);
+ 214              		.loc 1 103 0 discriminator 1
+ 215 0040 6420     		mov	r0, #100
+ 216 0042 FFF7FEFF 		bl	CyDelay
+ 217              	.LVL18:
+ 104:.\main.c      ****         LED_R_Write(1);
+ 218              		.loc 1 104 0 discriminator 1
+ 219 0046 0120     		mov	r0, #1
+ 220 0048 FFF7FEFF 		bl	LED_R_Write
+ 221              	.LVL19:
+ 105:.\main.c      ****         CyDelay(100);
+ 222              		.loc 1 105 0 discriminator 1
+ 223 004c 6420     		mov	r0, #100
+ 224 004e FFF7FEFF 		bl	CyDelay
+ 225              	.LVL20:
+ 106:.\main.c      ****     }while(adc>35);
+ 226              		.loc 1 106 0 discriminator 1
+ 227 0052 232C     		cmp	r4, #35
+ 228 0054 E7D8     		bhi	.L16
+ 107:.\main.c      ****     EnablePWM_Write(1);
+ 229              		.loc 1 107 0
+ 230 0056 0120     		mov	r0, #1
+ 231 0058 FFF7FEFF 		bl	EnablePWM_Write
+ 232              	.LVL21:
+ 108:.\main.c      ****     LED_R_Write(1);
+ 233              		.loc 1 108 0
+ 234 005c 0120     		mov	r0, #1
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 7
+
+
+ 235 005e FFF7FEFF 		bl	LED_R_Write
+ 236              	.LVL22:
+ 109:.\main.c      ****     
+ 110:.\main.c      ****     isr_Timed_StartEx(TimedIsr);
+ 237              		.loc 1 110 0
+ 238 0062 1348     		ldr	r0, .L22
+ 239 0064 FFF7FEFF 		bl	isr_Timed_StartEx
+ 240              	.LVL23:
+ 111:.\main.c      ****     CyGlobalIntEnable; /* Enable global interrupts. */
+ 241              		.loc 1 111 0
+ 242              	@ 111 ".\main.c" 1
+ 243 0068 62B6     		CPSIE   i
+ 244              	@ 0 "" 2
+ 112:.\main.c      **** 
+ 113:.\main.c      ****     LED_G_Write(0);
+ 245              		.loc 1 113 0
+ 246              		.code	16
+ 247 006a 0020     		mov	r0, #0
+ 248 006c FFF7FEFF 		bl	LED_G_Write
+ 249              	.LVL24:
+ 114:.\main.c      ****     LED_R_Write(1);
+ 250              		.loc 1 114 0
+ 251 0070 0120     		mov	r0, #1
+ 252 0072 FFF7FEFF 		bl	LED_R_Write
+ 253              	.LVL25:
+ 254              	.L17:
+ 115:.\main.c      **** 
+ 116:.\main.c      ****     for(;;)
+ 117:.\main.c      ****     {
+ 118:.\main.c      ****         /* Прочитане на ADC */
+ 119:.\main.c      ****         ADC_IsEndConversion(ADC_WAIT_FOR_RESULT);
+ 255              		.loc 1 119 0
+ 256 0076 0220     		mov	r0, #2
+ 257 0078 FFF7FEFF 		bl	ADC_IsEndConversion
+ 258              	.LVL26:
+ 120:.\main.c      ****         adc = ADC_GetResult16(0);
+ 259              		.loc 1 120 0
+ 260 007c 0020     		mov	r0, #0
+ 261 007e FFF7FEFF 		bl	ADC_GetResult16
+ 262              	.LVL27:
+ 263 0082 80B2     		uxth	r0, r0
+ 264              	.LVL28:
+ 121:.\main.c      ****         
+ 122:.\main.c      ****         if(adc!=0)
+ 265              		.loc 1 122 0
+ 266 0084 0028     		cmp	r0, #0
+ 267 0086 F6D0     		beq	.L17
+ 123:.\main.c      ****         {
+ 124:.\main.c      ****             if(adc<MIN_RPM) targetRPM = 0;
+ 268              		.loc 1 124 0
+ 269 0088 2728     		cmp	r0, #39
+ 270 008a 03D8     		bhi	.L18
+ 271              		.loc 1 124 0 is_stmt 0 discriminator 1
+ 272 008c 0022     		mov	r2, #0
+ 273 008e 094B     		ldr	r3, .L22+4
+ 274 0090 9A80     		strh	r2, [r3, #4]
+ 275 0092 09E0     		b	.L19
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 8
+
+
+ 276              	.L18:
+ 125:.\main.c      ****             else 
+ 126:.\main.c      ****                 if(adc>MAX_RPM) targetRPM = MAX_RPM;
+ 277              		.loc 1 126 0 is_stmt 1
+ 278 0094 AF23     		mov	r3, #175
+ 279 0096 DB00     		lsl	r3, r3, #3
+ 280 0098 9842     		cmp	r0, r3
+ 281 009a 03D9     		bls	.L20
+ 282              		.loc 1 126 0 is_stmt 0 discriminator 1
+ 283 009c 1A1C     		mov	r2, r3
+ 284 009e 054B     		ldr	r3, .L22+4
+ 285 00a0 9A80     		strh	r2, [r3, #4]
+ 286 00a2 01E0     		b	.L19
+ 287              	.L20:
+ 127:.\main.c      ****                 else targetRPM = adc;
+ 288              		.loc 1 127 0 is_stmt 1
+ 289 00a4 034B     		ldr	r3, .L22+4
+ 290 00a6 9880     		strh	r0, [r3, #4]
+ 291              	.L19:
+ 128:.\main.c      ****             health = MAX_HEALTH;
+ 292              		.loc 1 128 0
+ 293 00a8 0522     		mov	r2, #5
+ 294 00aa 024B     		ldr	r3, .L22+4
+ 295 00ac 1A60     		str	r2, [r3]
+ 296 00ae E2E7     		b	.L17
+ 297              	.L23:
+ 298              		.align	2
+ 299              	.L22:
+ 300 00b0 00000000 		.word	TimedIsr
+ 301 00b4 00000000 		.word	.LANCHOR0
+ 302              		.cfi_endproc
+ 303              	.LFE35:
+ 304              		.size	main, .-main
+ 305              		.global	blink
+ 306              		.global	prevRPM
+ 307              		.global	currentRPM
+ 308              		.global	targetRPM
+ 309              		.global	health
+ 310              		.bss
+ 311              		.align	2
+ 312              		.set	.LANCHOR0,. + 0
+ 313              		.type	health, %object
+ 314              		.size	health, 4
+ 315              	health:
+ 316 0000 00000000 		.space	4
+ 317              		.type	targetRPM, %object
+ 318              		.size	targetRPM, 2
+ 319              	targetRPM:
+ 320 0004 0000     		.space	2
+ 321              		.type	currentRPM, %object
+ 322              		.size	currentRPM, 2
+ 323              	currentRPM:
+ 324 0006 0000     		.space	2
+ 325              		.type	prevRPM, %object
+ 326              		.size	prevRPM, 2
+ 327              	prevRPM:
+ 328 0008 0000     		.space	2
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 9
+
+
+ 329              		.type	blink, %object
+ 330              		.size	blink, 1
+ 331              	blink:
+ 332 000a 00       		.space	1
+ 333 000b 00       		.text
+ 334              	.Letext0:
+ 335              		.file 2 "Generated_Source\\PSoC4/cytypes.h"
+ 336              		.file 3 "Generated_Source\\PSoC4/EnablePWM.h"
+ 337              		.file 4 "Generated_Source\\PSoC4/PWM.h"
+ 338              		.file 5 "Generated_Source\\PSoC4/LED_G.h"
+ 339              		.file 6 "Generated_Source\\PSoC4/ADC.h"
+ 340              		.file 7 "Generated_Source\\PSoC4/LED_R.h"
+ 341              		.file 8 "Generated_Source\\PSoC4/CyLib.h"
+ 342              		.file 9 "Generated_Source\\PSoC4/isr_Timed.h"
+ 343              		.section	.debug_info,"",%progbits
+ 344              	.Ldebug_info0:
+ 345 0000 D3030000 		.4byte	0x3d3
+ 346 0004 0400     		.2byte	0x4
+ 347 0006 00000000 		.4byte	.Ldebug_abbrev0
+ 348 000a 04       		.byte	0x4
+ 349 000b 01       		.uleb128 0x1
+ 350 000c 48010000 		.4byte	.LASF35
+ 351 0010 01       		.byte	0x1
+ 352 0011 B7000000 		.4byte	.LASF36
+ 353 0015 F6010000 		.4byte	.LASF37
+ 354 0019 00000000 		.4byte	.Ldebug_ranges0+0
+ 355 001d 00000000 		.4byte	0
+ 356 0021 00000000 		.4byte	.Ldebug_line0
+ 357 0025 02       		.uleb128 0x2
+ 358 0026 01       		.byte	0x1
+ 359 0027 06       		.byte	0x6
+ 360 0028 38020000 		.4byte	.LASF0
+ 361 002c 02       		.uleb128 0x2
+ 362 002d 01       		.byte	0x1
+ 363 002e 08       		.byte	0x8
+ 364 002f 5A000000 		.4byte	.LASF1
+ 365 0033 02       		.uleb128 0x2
+ 366 0034 02       		.byte	0x2
+ 367 0035 05       		.byte	0x5
+ 368 0036 E2010000 		.4byte	.LASF2
+ 369 003a 02       		.uleb128 0x2
+ 370 003b 02       		.byte	0x2
+ 371 003c 07       		.byte	0x7
+ 372 003d 29000000 		.4byte	.LASF3
+ 373 0041 02       		.uleb128 0x2
+ 374 0042 04       		.byte	0x4
+ 375 0043 05       		.byte	0x5
+ 376 0044 2A020000 		.4byte	.LASF4
+ 377 0048 02       		.uleb128 0x2
+ 378 0049 04       		.byte	0x4
+ 379 004a 07       		.byte	0x7
+ 380 004b 6E000000 		.4byte	.LASF5
+ 381 004f 02       		.uleb128 0x2
+ 382 0050 08       		.byte	0x8
+ 383 0051 05       		.byte	0x5
+ 384 0052 00000000 		.4byte	.LASF6
+ 385 0056 02       		.uleb128 0x2
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 10
+
+
+ 386 0057 08       		.byte	0x8
+ 387 0058 07       		.byte	0x7
+ 388 0059 DD000000 		.4byte	.LASF7
+ 389 005d 03       		.uleb128 0x3
+ 390 005e 04       		.byte	0x4
+ 391 005f 05       		.byte	0x5
+ 392 0060 696E7400 		.ascii	"int\000"
+ 393 0064 02       		.uleb128 0x2
+ 394 0065 04       		.byte	0x4
+ 395 0066 07       		.byte	0x7
+ 396 0067 47000000 		.4byte	.LASF8
+ 397 006b 04       		.uleb128 0x4
+ 398 006c 80000000 		.4byte	.LASF9
+ 399 0070 02       		.byte	0x2
+ 400 0071 9801     		.2byte	0x198
+ 401 0073 2C000000 		.4byte	0x2c
+ 402 0077 04       		.uleb128 0x4
+ 403 0078 C0000000 		.4byte	.LASF10
+ 404 007c 02       		.byte	0x2
+ 405 007d 9901     		.2byte	0x199
+ 406 007f 3A000000 		.4byte	0x3a
+ 407 0083 04       		.uleb128 0x4
+ 408 0084 C7000000 		.4byte	.LASF11
+ 409 0088 02       		.byte	0x2
+ 410 0089 9A01     		.2byte	0x19a
+ 411 008b 48000000 		.4byte	0x48
+ 412 008f 04       		.uleb128 0x4
+ 413 0090 68000000 		.4byte	.LASF12
+ 414 0094 02       		.byte	0x2
+ 415 0095 9C01     		.2byte	0x19c
+ 416 0097 33000000 		.4byte	0x33
+ 417 009b 02       		.uleb128 0x2
+ 418 009c 04       		.byte	0x4
+ 419 009d 04       		.byte	0x4
+ 420 009e 54000000 		.4byte	.LASF13
+ 421 00a2 02       		.uleb128 0x2
+ 422 00a3 08       		.byte	0x8
+ 423 00a4 04       		.byte	0x4
+ 424 00a5 B0000000 		.4byte	.LASF14
+ 425 00a9 02       		.uleb128 0x2
+ 426 00aa 01       		.byte	0x1
+ 427 00ab 08       		.byte	0x8
+ 428 00ac 33020000 		.4byte	.LASF15
+ 429 00b0 04       		.uleb128 0x4
+ 430 00b1 FE000000 		.4byte	.LASF16
+ 431 00b5 02       		.byte	0x2
+ 432 00b6 5402     		.2byte	0x254
+ 433 00b8 BC000000 		.4byte	0xbc
+ 434 00bc 05       		.uleb128 0x5
+ 435 00bd 04       		.byte	0x4
+ 436 00be C2000000 		.4byte	0xc2
+ 437 00c2 06       		.uleb128 0x6
+ 438 00c3 02       		.uleb128 0x2
+ 439 00c4 04       		.byte	0x4
+ 440 00c5 07       		.byte	0x7
+ 441 00c6 1B010000 		.4byte	.LASF17
+ 442 00ca 07       		.uleb128 0x7
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 11
+
+
+ 443 00cb 20000000 		.4byte	.LASF18
+ 444 00cf 01       		.byte	0x1
+ 445 00d0 1A       		.byte	0x1a
+ 446 00d1 00000000 		.4byte	.LFB34
+ 447 00d5 AC000000 		.4byte	.LFE34-.LFB34
+ 448 00d9 01       		.uleb128 0x1
+ 449 00da 9C       		.byte	0x9c
+ 450 00db 44010000 		.4byte	0x144
+ 451 00df 08       		.uleb128 0x8
+ 452 00e0 26000000 		.4byte	.LVL0
+ 453 00e4 35030000 		.4byte	0x335
+ 454 00e8 F2000000 		.4byte	0xf2
+ 455 00ec 09       		.uleb128 0x9
+ 456 00ed 01       		.uleb128 0x1
+ 457 00ee 50       		.byte	0x50
+ 458 00ef 01       		.uleb128 0x1
+ 459 00f0 30       		.byte	0x30
+ 460 00f1 00       		.byte	0
+ 461 00f2 08       		.uleb128 0x8
+ 462 00f3 2E000000 		.4byte	.LVL1
+ 463 00f7 35030000 		.4byte	0x335
+ 464 00fb 05010000 		.4byte	0x105
+ 465 00ff 09       		.uleb128 0x9
+ 466 0100 01       		.uleb128 0x1
+ 467 0101 50       		.byte	0x50
+ 468 0102 01       		.uleb128 0x1
+ 469 0103 31       		.byte	0x31
+ 470 0104 00       		.byte	0
+ 471 0105 0A       		.uleb128 0xa
+ 472 0106 6C000000 		.4byte	.LVL2
+ 473 010a 46030000 		.4byte	0x346
+ 474 010e 08       		.uleb128 0x8
+ 475 010f 80000000 		.4byte	.LVL3
+ 476 0113 57030000 		.4byte	0x357
+ 477 0117 21010000 		.4byte	0x121
+ 478 011b 09       		.uleb128 0x9
+ 479 011c 01       		.uleb128 0x1
+ 480 011d 50       		.byte	0x50
+ 481 011e 01       		.uleb128 0x1
+ 482 011f 30       		.byte	0x30
+ 483 0120 00       		.byte	0
+ 484 0121 08       		.uleb128 0x8
+ 485 0122 90000000 		.4byte	.LVL4
+ 486 0126 57030000 		.4byte	0x357
+ 487 012a 34010000 		.4byte	0x134
+ 488 012e 09       		.uleb128 0x9
+ 489 012f 01       		.uleb128 0x1
+ 490 0130 50       		.byte	0x50
+ 491 0131 01       		.uleb128 0x1
+ 492 0132 30       		.byte	0x30
+ 493 0133 00       		.byte	0
+ 494 0134 0B       		.uleb128 0xb
+ 495 0135 9E000000 		.4byte	.LVL5
+ 496 0139 57030000 		.4byte	0x357
+ 497 013d 09       		.uleb128 0x9
+ 498 013e 01       		.uleb128 0x1
+ 499 013f 50       		.byte	0x50
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 12
+
+
+ 500 0140 01       		.uleb128 0x1
+ 501 0141 31       		.byte	0x31
+ 502 0142 00       		.byte	0
+ 503 0143 00       		.byte	0
+ 504 0144 0C       		.uleb128 0xc
+ 505 0145 CE000000 		.4byte	.LASF19
+ 506 0149 01       		.byte	0x1
+ 507 014a 4E       		.byte	0x4e
+ 508 014b 5D000000 		.4byte	0x5d
+ 509 014f 00000000 		.4byte	.LFB35
+ 510 0153 B8000000 		.4byte	.LFE35-.LFB35
+ 511 0157 01       		.uleb128 0x1
+ 512 0158 9C       		.byte	0x9c
+ 513 0159 E0020000 		.4byte	0x2e0
+ 514 015d 0D       		.uleb128 0xd
+ 515 015e 61646300 		.ascii	"adc\000"
+ 516 0162 01       		.byte	0x1
+ 517 0163 5E       		.byte	0x5e
+ 518 0164 77000000 		.4byte	0x77
+ 519 0168 00000000 		.4byte	.LLST0
+ 520 016c 0A       		.uleb128 0xa
+ 521 016d 06000000 		.4byte	.LVL6
+ 522 0171 68030000 		.4byte	0x368
+ 523 0175 0A       		.uleb128 0xa
+ 524 0176 0A000000 		.4byte	.LVL7
+ 525 017a 6F030000 		.4byte	0x36f
+ 526 017e 0A       		.uleb128 0xa
+ 527 017f 0E000000 		.4byte	.LVL8
+ 528 0183 76030000 		.4byte	0x376
+ 529 0187 08       		.uleb128 0x8
+ 530 0188 14000000 		.4byte	.LVL9
+ 531 018c 35030000 		.4byte	0x335
+ 532 0190 9A010000 		.4byte	0x19a
+ 533 0194 09       		.uleb128 0x9
+ 534 0195 01       		.uleb128 0x1
+ 535 0196 50       		.byte	0x50
+ 536 0197 01       		.uleb128 0x1
+ 537 0198 30       		.byte	0x30
+ 538 0199 00       		.byte	0
+ 539 019a 08       		.uleb128 0x8
+ 540 019b 1A000000 		.4byte	.LVL10
+ 541 019f 57030000 		.4byte	0x357
+ 542 01a3 AD010000 		.4byte	0x1ad
+ 543 01a7 09       		.uleb128 0x9
+ 544 01a8 01       		.uleb128 0x1
+ 545 01a9 50       		.byte	0x50
+ 546 01aa 01       		.uleb128 0x1
+ 547 01ab 31       		.byte	0x31
+ 548 01ac 00       		.byte	0
+ 549 01ad 08       		.uleb128 0x8
+ 550 01ae 20000000 		.4byte	.LVL11
+ 551 01b2 7D030000 		.4byte	0x37d
+ 552 01b6 C0010000 		.4byte	0x1c0
+ 553 01ba 09       		.uleb128 0x9
+ 554 01bb 01       		.uleb128 0x1
+ 555 01bc 50       		.byte	0x50
+ 556 01bd 01       		.uleb128 0x1
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 13
+
+
+ 557 01be 31       		.byte	0x31
+ 558 01bf 00       		.byte	0
+ 559 01c0 08       		.uleb128 0x8
+ 560 01c1 26000000 		.4byte	.LVL12
+ 561 01c5 46030000 		.4byte	0x346
+ 562 01c9 D3010000 		.4byte	0x1d3
+ 563 01cd 09       		.uleb128 0x9
+ 564 01ce 01       		.uleb128 0x1
+ 565 01cf 50       		.byte	0x50
+ 566 01d0 01       		.uleb128 0x1
+ 567 01d1 30       		.byte	0x30
+ 568 01d2 00       		.byte	0
+ 569 01d3 08       		.uleb128 0x8
+ 570 01d4 2C000000 		.4byte	.LVL13
+ 571 01d8 8E030000 		.4byte	0x38e
+ 572 01dc E6010000 		.4byte	0x1e6
+ 573 01e0 09       		.uleb128 0x9
+ 574 01e1 01       		.uleb128 0x1
+ 575 01e2 50       		.byte	0x50
+ 576 01e3 01       		.uleb128 0x1
+ 577 01e4 32       		.byte	0x32
+ 578 01e5 00       		.byte	0
+ 579 01e6 08       		.uleb128 0x8
+ 580 01e7 32000000 		.4byte	.LVL14
+ 581 01eb A3030000 		.4byte	0x3a3
+ 582 01ef F9010000 		.4byte	0x1f9
+ 583 01f3 09       		.uleb128 0x9
+ 584 01f4 01       		.uleb128 0x1
+ 585 01f5 50       		.byte	0x50
+ 586 01f6 01       		.uleb128 0x1
+ 587 01f7 30       		.byte	0x30
+ 588 01f8 00       		.byte	0
+ 589 01f9 08       		.uleb128 0x8
+ 590 01fa 3A000000 		.4byte	.LVL16
+ 591 01fe 57030000 		.4byte	0x357
+ 592 0202 0C020000 		.4byte	0x20c
+ 593 0206 09       		.uleb128 0x9
+ 594 0207 01       		.uleb128 0x1
+ 595 0208 50       		.byte	0x50
+ 596 0209 01       		.uleb128 0x1
+ 597 020a 31       		.byte	0x31
+ 598 020b 00       		.byte	0
+ 599 020c 08       		.uleb128 0x8
+ 600 020d 40000000 		.4byte	.LVL17
+ 601 0211 7D030000 		.4byte	0x37d
+ 602 0215 1F020000 		.4byte	0x21f
+ 603 0219 09       		.uleb128 0x9
+ 604 021a 01       		.uleb128 0x1
+ 605 021b 50       		.byte	0x50
+ 606 021c 01       		.uleb128 0x1
+ 607 021d 30       		.byte	0x30
+ 608 021e 00       		.byte	0
+ 609 021f 08       		.uleb128 0x8
+ 610 0220 46000000 		.4byte	.LVL18
+ 611 0224 B8030000 		.4byte	0x3b8
+ 612 0228 33020000 		.4byte	0x233
+ 613 022c 09       		.uleb128 0x9
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 14
+
+
+ 614 022d 01       		.uleb128 0x1
+ 615 022e 50       		.byte	0x50
+ 616 022f 02       		.uleb128 0x2
+ 617 0230 08       		.byte	0x8
+ 618 0231 64       		.byte	0x64
+ 619 0232 00       		.byte	0
+ 620 0233 08       		.uleb128 0x8
+ 621 0234 4C000000 		.4byte	.LVL19
+ 622 0238 7D030000 		.4byte	0x37d
+ 623 023c 46020000 		.4byte	0x246
+ 624 0240 09       		.uleb128 0x9
+ 625 0241 01       		.uleb128 0x1
+ 626 0242 50       		.byte	0x50
+ 627 0243 01       		.uleb128 0x1
+ 628 0244 31       		.byte	0x31
+ 629 0245 00       		.byte	0
+ 630 0246 08       		.uleb128 0x8
+ 631 0247 52000000 		.4byte	.LVL20
+ 632 024b B8030000 		.4byte	0x3b8
+ 633 024f 5A020000 		.4byte	0x25a
+ 634 0253 09       		.uleb128 0x9
+ 635 0254 01       		.uleb128 0x1
+ 636 0255 50       		.byte	0x50
+ 637 0256 02       		.uleb128 0x2
+ 638 0257 08       		.byte	0x8
+ 639 0258 64       		.byte	0x64
+ 640 0259 00       		.byte	0
+ 641 025a 08       		.uleb128 0x8
+ 642 025b 5C000000 		.4byte	.LVL21
+ 643 025f 35030000 		.4byte	0x335
+ 644 0263 6D020000 		.4byte	0x26d
+ 645 0267 09       		.uleb128 0x9
+ 646 0268 01       		.uleb128 0x1
+ 647 0269 50       		.byte	0x50
+ 648 026a 01       		.uleb128 0x1
+ 649 026b 31       		.byte	0x31
+ 650 026c 00       		.byte	0
+ 651 026d 08       		.uleb128 0x8
+ 652 026e 62000000 		.4byte	.LVL22
+ 653 0272 7D030000 		.4byte	0x37d
+ 654 0276 80020000 		.4byte	0x280
+ 655 027a 09       		.uleb128 0x9
+ 656 027b 01       		.uleb128 0x1
+ 657 027c 50       		.byte	0x50
+ 658 027d 01       		.uleb128 0x1
+ 659 027e 31       		.byte	0x31
+ 660 027f 00       		.byte	0
+ 661 0280 08       		.uleb128 0x8
+ 662 0281 68000000 		.4byte	.LVL23
+ 663 0285 C9030000 		.4byte	0x3c9
+ 664 0289 97020000 		.4byte	0x297
+ 665 028d 09       		.uleb128 0x9
+ 666 028e 01       		.uleb128 0x1
+ 667 028f 50       		.byte	0x50
+ 668 0290 05       		.uleb128 0x5
+ 669 0291 03       		.byte	0x3
+ 670 0292 00000000 		.4byte	TimedIsr
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 15
+
+
+ 671 0296 00       		.byte	0
+ 672 0297 08       		.uleb128 0x8
+ 673 0298 70000000 		.4byte	.LVL24
+ 674 029c 57030000 		.4byte	0x357
+ 675 02a0 AA020000 		.4byte	0x2aa
+ 676 02a4 09       		.uleb128 0x9
+ 677 02a5 01       		.uleb128 0x1
+ 678 02a6 50       		.byte	0x50
+ 679 02a7 01       		.uleb128 0x1
+ 680 02a8 30       		.byte	0x30
+ 681 02a9 00       		.byte	0
+ 682 02aa 08       		.uleb128 0x8
+ 683 02ab 76000000 		.4byte	.LVL25
+ 684 02af 7D030000 		.4byte	0x37d
+ 685 02b3 BD020000 		.4byte	0x2bd
+ 686 02b7 09       		.uleb128 0x9
+ 687 02b8 01       		.uleb128 0x1
+ 688 02b9 50       		.byte	0x50
+ 689 02ba 01       		.uleb128 0x1
+ 690 02bb 31       		.byte	0x31
+ 691 02bc 00       		.byte	0
+ 692 02bd 08       		.uleb128 0x8
+ 693 02be 7C000000 		.4byte	.LVL26
+ 694 02c2 8E030000 		.4byte	0x38e
+ 695 02c6 D0020000 		.4byte	0x2d0
+ 696 02ca 09       		.uleb128 0x9
+ 697 02cb 01       		.uleb128 0x1
+ 698 02cc 50       		.byte	0x50
+ 699 02cd 01       		.uleb128 0x1
+ 700 02ce 32       		.byte	0x32
+ 701 02cf 00       		.byte	0
+ 702 02d0 0B       		.uleb128 0xb
+ 703 02d1 82000000 		.4byte	.LVL27
+ 704 02d5 A3030000 		.4byte	0x3a3
+ 705 02d9 09       		.uleb128 0x9
+ 706 02da 01       		.uleb128 0x1
+ 707 02db 50       		.byte	0x50
+ 708 02dc 01       		.uleb128 0x1
+ 709 02dd 30       		.byte	0x30
+ 710 02de 00       		.byte	0
+ 711 02df 00       		.byte	0
+ 712 02e0 0E       		.uleb128 0xe
+ 713 02e1 41010000 		.4byte	.LASF20
+ 714 02e5 01       		.byte	0x1
+ 715 02e6 13       		.byte	0x13
+ 716 02e7 83000000 		.4byte	0x83
+ 717 02eb 05       		.uleb128 0x5
+ 718 02ec 03       		.byte	0x3
+ 719 02ed 00000000 		.4byte	health
+ 720 02f1 0E       		.uleb128 0xe
+ 721 02f2 D3000000 		.4byte	.LASF21
+ 722 02f6 01       		.byte	0x1
+ 723 02f7 14       		.byte	0x14
+ 724 02f8 77000000 		.4byte	0x77
+ 725 02fc 05       		.uleb128 0x5
+ 726 02fd 03       		.byte	0x3
+ 727 02fe 00000000 		.4byte	targetRPM
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 16
+
+
+ 728 0302 0E       		.uleb128 0xe
+ 729 0303 3C000000 		.4byte	.LASF22
+ 730 0307 01       		.byte	0x1
+ 731 0308 15       		.byte	0x15
+ 732 0309 77000000 		.4byte	0x77
+ 733 030d 05       		.uleb128 0x5
+ 734 030e 03       		.byte	0x3
+ 735 030f 00000000 		.4byte	currentRPM
+ 736 0313 0E       		.uleb128 0xe
+ 737 0314 54020000 		.4byte	.LASF23
+ 738 0318 01       		.byte	0x1
+ 739 0319 16       		.byte	0x16
+ 740 031a 77000000 		.4byte	0x77
+ 741 031e 05       		.uleb128 0x5
+ 742 031f 03       		.byte	0x3
+ 743 0320 00000000 		.4byte	prevRPM
+ 744 0324 0E       		.uleb128 0xe
+ 745 0325 86000000 		.4byte	.LASF24
+ 746 0329 01       		.byte	0x1
+ 747 032a 17       		.byte	0x17
+ 748 032b 6B000000 		.4byte	0x6b
+ 749 032f 05       		.uleb128 0x5
+ 750 0330 03       		.byte	0x3
+ 751 0331 00000000 		.4byte	blink
+ 752 0335 0F       		.uleb128 0xf
+ 753 0336 44020000 		.4byte	.LASF25
+ 754 033a 03       		.byte	0x3
+ 755 033b 27       		.byte	0x27
+ 756 033c 46030000 		.4byte	0x346
+ 757 0340 10       		.uleb128 0x10
+ 758 0341 6B000000 		.4byte	0x6b
+ 759 0345 00       		.byte	0
+ 760 0346 0F       		.uleb128 0xf
+ 761 0347 0B010000 		.4byte	.LASF26
+ 762 034b 04       		.byte	0x4
+ 763 034c BE       		.byte	0xbe
+ 764 034d 57030000 		.4byte	0x357
+ 765 0351 10       		.uleb128 0x10
+ 766 0352 77000000 		.4byte	0x77
+ 767 0356 00       		.byte	0
+ 768 0357 0F       		.uleb128 0xf
+ 769 0358 35010000 		.4byte	.LASF27
+ 770 035c 05       		.byte	0x5
+ 771 035d 27       		.byte	0x27
+ 772 035e 68030000 		.4byte	0x368
+ 773 0362 10       		.uleb128 0x10
+ 774 0363 6B000000 		.4byte	0x6b
+ 775 0367 00       		.byte	0
+ 776 0368 11       		.uleb128 0x11
+ 777 0369 F4000000 		.4byte	.LASF28
+ 778 036d 06       		.byte	0x6
+ 779 036e 98       		.byte	0x98
+ 780 036f 11       		.uleb128 0x11
+ 781 0370 24010000 		.4byte	.LASF29
+ 782 0374 06       		.byte	0x6
+ 783 0375 9C       		.byte	0x9c
+ 784 0376 11       		.uleb128 0x11
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 17
+
+
+ 785 0377 EC010000 		.4byte	.LASF30
+ 786 037b 04       		.byte	0x4
+ 787 037c 92       		.byte	0x92
+ 788 037d 0F       		.uleb128 0xf
+ 789 037e D6010000 		.4byte	.LASF31
+ 790 0382 07       		.byte	0x7
+ 791 0383 27       		.byte	0x27
+ 792 0384 8E030000 		.4byte	0x38e
+ 793 0388 10       		.uleb128 0x10
+ 794 0389 6B000000 		.4byte	0x6b
+ 795 038d 00       		.byte	0
+ 796 038e 12       		.uleb128 0x12
+ 797 038f 9C000000 		.4byte	.LASF32
+ 798 0393 06       		.byte	0x6
+ 799 0394 9E       		.byte	0x9e
+ 800 0395 83000000 		.4byte	0x83
+ 801 0399 A3030000 		.4byte	0x3a3
+ 802 039d 10       		.uleb128 0x10
+ 803 039e 83000000 		.4byte	0x83
+ 804 03a2 00       		.byte	0
+ 805 03a3 12       		.uleb128 0x12
+ 806 03a4 8C000000 		.4byte	.LASF33
+ 807 03a8 06       		.byte	0x6
+ 808 03a9 9F       		.byte	0x9f
+ 809 03aa 8F000000 		.4byte	0x8f
+ 810 03ae B8030000 		.4byte	0x3b8
+ 811 03b2 10       		.uleb128 0x10
+ 812 03b3 83000000 		.4byte	0x83
+ 813 03b7 00       		.byte	0
+ 814 03b8 0F       		.uleb128 0xf
+ 815 03b9 5C020000 		.4byte	.LASF34
+ 816 03bd 08       		.byte	0x8
+ 817 03be D7       		.byte	0xd7
+ 818 03bf C9030000 		.4byte	0x3c9
+ 819 03c3 10       		.uleb128 0x10
+ 820 03c4 83000000 		.4byte	0x83
+ 821 03c8 00       		.byte	0
+ 822 03c9 13       		.uleb128 0x13
+ 823 03ca 0E000000 		.4byte	.LASF38
+ 824 03ce 09       		.byte	0x9
+ 825 03cf 18       		.byte	0x18
+ 826 03d0 10       		.uleb128 0x10
+ 827 03d1 B0000000 		.4byte	0xb0
+ 828 03d5 00       		.byte	0
+ 829 03d6 00       		.byte	0
+ 830              		.section	.debug_abbrev,"",%progbits
+ 831              	.Ldebug_abbrev0:
+ 832 0000 01       		.uleb128 0x1
+ 833 0001 11       		.uleb128 0x11
+ 834 0002 01       		.byte	0x1
+ 835 0003 25       		.uleb128 0x25
+ 836 0004 0E       		.uleb128 0xe
+ 837 0005 13       		.uleb128 0x13
+ 838 0006 0B       		.uleb128 0xb
+ 839 0007 03       		.uleb128 0x3
+ 840 0008 0E       		.uleb128 0xe
+ 841 0009 1B       		.uleb128 0x1b
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 18
+
+
+ 842 000a 0E       		.uleb128 0xe
+ 843 000b 55       		.uleb128 0x55
+ 844 000c 17       		.uleb128 0x17
+ 845 000d 11       		.uleb128 0x11
+ 846 000e 01       		.uleb128 0x1
+ 847 000f 10       		.uleb128 0x10
+ 848 0010 17       		.uleb128 0x17
+ 849 0011 00       		.byte	0
+ 850 0012 00       		.byte	0
+ 851 0013 02       		.uleb128 0x2
+ 852 0014 24       		.uleb128 0x24
+ 853 0015 00       		.byte	0
+ 854 0016 0B       		.uleb128 0xb
+ 855 0017 0B       		.uleb128 0xb
+ 856 0018 3E       		.uleb128 0x3e
+ 857 0019 0B       		.uleb128 0xb
+ 858 001a 03       		.uleb128 0x3
+ 859 001b 0E       		.uleb128 0xe
+ 860 001c 00       		.byte	0
+ 861 001d 00       		.byte	0
+ 862 001e 03       		.uleb128 0x3
+ 863 001f 24       		.uleb128 0x24
+ 864 0020 00       		.byte	0
+ 865 0021 0B       		.uleb128 0xb
+ 866 0022 0B       		.uleb128 0xb
+ 867 0023 3E       		.uleb128 0x3e
+ 868 0024 0B       		.uleb128 0xb
+ 869 0025 03       		.uleb128 0x3
+ 870 0026 08       		.uleb128 0x8
+ 871 0027 00       		.byte	0
+ 872 0028 00       		.byte	0
+ 873 0029 04       		.uleb128 0x4
+ 874 002a 16       		.uleb128 0x16
+ 875 002b 00       		.byte	0
+ 876 002c 03       		.uleb128 0x3
+ 877 002d 0E       		.uleb128 0xe
+ 878 002e 3A       		.uleb128 0x3a
+ 879 002f 0B       		.uleb128 0xb
+ 880 0030 3B       		.uleb128 0x3b
+ 881 0031 05       		.uleb128 0x5
+ 882 0032 49       		.uleb128 0x49
+ 883 0033 13       		.uleb128 0x13
+ 884 0034 00       		.byte	0
+ 885 0035 00       		.byte	0
+ 886 0036 05       		.uleb128 0x5
+ 887 0037 0F       		.uleb128 0xf
+ 888 0038 00       		.byte	0
+ 889 0039 0B       		.uleb128 0xb
+ 890 003a 0B       		.uleb128 0xb
+ 891 003b 49       		.uleb128 0x49
+ 892 003c 13       		.uleb128 0x13
+ 893 003d 00       		.byte	0
+ 894 003e 00       		.byte	0
+ 895 003f 06       		.uleb128 0x6
+ 896 0040 15       		.uleb128 0x15
+ 897 0041 00       		.byte	0
+ 898 0042 27       		.uleb128 0x27
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 19
+
+
+ 899 0043 19       		.uleb128 0x19
+ 900 0044 00       		.byte	0
+ 901 0045 00       		.byte	0
+ 902 0046 07       		.uleb128 0x7
+ 903 0047 2E       		.uleb128 0x2e
+ 904 0048 01       		.byte	0x1
+ 905 0049 3F       		.uleb128 0x3f
+ 906 004a 19       		.uleb128 0x19
+ 907 004b 03       		.uleb128 0x3
+ 908 004c 0E       		.uleb128 0xe
+ 909 004d 3A       		.uleb128 0x3a
+ 910 004e 0B       		.uleb128 0xb
+ 911 004f 3B       		.uleb128 0x3b
+ 912 0050 0B       		.uleb128 0xb
+ 913 0051 27       		.uleb128 0x27
+ 914 0052 19       		.uleb128 0x19
+ 915 0053 11       		.uleb128 0x11
+ 916 0054 01       		.uleb128 0x1
+ 917 0055 12       		.uleb128 0x12
+ 918 0056 06       		.uleb128 0x6
+ 919 0057 40       		.uleb128 0x40
+ 920 0058 18       		.uleb128 0x18
+ 921 0059 9742     		.uleb128 0x2117
+ 922 005b 19       		.uleb128 0x19
+ 923 005c 01       		.uleb128 0x1
+ 924 005d 13       		.uleb128 0x13
+ 925 005e 00       		.byte	0
+ 926 005f 00       		.byte	0
+ 927 0060 08       		.uleb128 0x8
+ 928 0061 898201   		.uleb128 0x4109
+ 929 0064 01       		.byte	0x1
+ 930 0065 11       		.uleb128 0x11
+ 931 0066 01       		.uleb128 0x1
+ 932 0067 31       		.uleb128 0x31
+ 933 0068 13       		.uleb128 0x13
+ 934 0069 01       		.uleb128 0x1
+ 935 006a 13       		.uleb128 0x13
+ 936 006b 00       		.byte	0
+ 937 006c 00       		.byte	0
+ 938 006d 09       		.uleb128 0x9
+ 939 006e 8A8201   		.uleb128 0x410a
+ 940 0071 00       		.byte	0
+ 941 0072 02       		.uleb128 0x2
+ 942 0073 18       		.uleb128 0x18
+ 943 0074 9142     		.uleb128 0x2111
+ 944 0076 18       		.uleb128 0x18
+ 945 0077 00       		.byte	0
+ 946 0078 00       		.byte	0
+ 947 0079 0A       		.uleb128 0xa
+ 948 007a 898201   		.uleb128 0x4109
+ 949 007d 00       		.byte	0
+ 950 007e 11       		.uleb128 0x11
+ 951 007f 01       		.uleb128 0x1
+ 952 0080 31       		.uleb128 0x31
+ 953 0081 13       		.uleb128 0x13
+ 954 0082 00       		.byte	0
+ 955 0083 00       		.byte	0
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 20
+
+
+ 956 0084 0B       		.uleb128 0xb
+ 957 0085 898201   		.uleb128 0x4109
+ 958 0088 01       		.byte	0x1
+ 959 0089 11       		.uleb128 0x11
+ 960 008a 01       		.uleb128 0x1
+ 961 008b 31       		.uleb128 0x31
+ 962 008c 13       		.uleb128 0x13
+ 963 008d 00       		.byte	0
+ 964 008e 00       		.byte	0
+ 965 008f 0C       		.uleb128 0xc
+ 966 0090 2E       		.uleb128 0x2e
+ 967 0091 01       		.byte	0x1
+ 968 0092 3F       		.uleb128 0x3f
+ 969 0093 19       		.uleb128 0x19
+ 970 0094 03       		.uleb128 0x3
+ 971 0095 0E       		.uleb128 0xe
+ 972 0096 3A       		.uleb128 0x3a
+ 973 0097 0B       		.uleb128 0xb
+ 974 0098 3B       		.uleb128 0x3b
+ 975 0099 0B       		.uleb128 0xb
+ 976 009a 49       		.uleb128 0x49
+ 977 009b 13       		.uleb128 0x13
+ 978 009c 11       		.uleb128 0x11
+ 979 009d 01       		.uleb128 0x1
+ 980 009e 12       		.uleb128 0x12
+ 981 009f 06       		.uleb128 0x6
+ 982 00a0 40       		.uleb128 0x40
+ 983 00a1 18       		.uleb128 0x18
+ 984 00a2 9742     		.uleb128 0x2117
+ 985 00a4 19       		.uleb128 0x19
+ 986 00a5 01       		.uleb128 0x1
+ 987 00a6 13       		.uleb128 0x13
+ 988 00a7 00       		.byte	0
+ 989 00a8 00       		.byte	0
+ 990 00a9 0D       		.uleb128 0xd
+ 991 00aa 34       		.uleb128 0x34
+ 992 00ab 00       		.byte	0
+ 993 00ac 03       		.uleb128 0x3
+ 994 00ad 08       		.uleb128 0x8
+ 995 00ae 3A       		.uleb128 0x3a
+ 996 00af 0B       		.uleb128 0xb
+ 997 00b0 3B       		.uleb128 0x3b
+ 998 00b1 0B       		.uleb128 0xb
+ 999 00b2 49       		.uleb128 0x49
+ 1000 00b3 13       		.uleb128 0x13
+ 1001 00b4 02       		.uleb128 0x2
+ 1002 00b5 17       		.uleb128 0x17
+ 1003 00b6 00       		.byte	0
+ 1004 00b7 00       		.byte	0
+ 1005 00b8 0E       		.uleb128 0xe
+ 1006 00b9 34       		.uleb128 0x34
+ 1007 00ba 00       		.byte	0
+ 1008 00bb 03       		.uleb128 0x3
+ 1009 00bc 0E       		.uleb128 0xe
+ 1010 00bd 3A       		.uleb128 0x3a
+ 1011 00be 0B       		.uleb128 0xb
+ 1012 00bf 3B       		.uleb128 0x3b
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 21
+
+
+ 1013 00c0 0B       		.uleb128 0xb
+ 1014 00c1 49       		.uleb128 0x49
+ 1015 00c2 13       		.uleb128 0x13
+ 1016 00c3 3F       		.uleb128 0x3f
+ 1017 00c4 19       		.uleb128 0x19
+ 1018 00c5 02       		.uleb128 0x2
+ 1019 00c6 18       		.uleb128 0x18
+ 1020 00c7 00       		.byte	0
+ 1021 00c8 00       		.byte	0
+ 1022 00c9 0F       		.uleb128 0xf
+ 1023 00ca 2E       		.uleb128 0x2e
+ 1024 00cb 01       		.byte	0x1
+ 1025 00cc 3F       		.uleb128 0x3f
+ 1026 00cd 19       		.uleb128 0x19
+ 1027 00ce 03       		.uleb128 0x3
+ 1028 00cf 0E       		.uleb128 0xe
+ 1029 00d0 3A       		.uleb128 0x3a
+ 1030 00d1 0B       		.uleb128 0xb
+ 1031 00d2 3B       		.uleb128 0x3b
+ 1032 00d3 0B       		.uleb128 0xb
+ 1033 00d4 27       		.uleb128 0x27
+ 1034 00d5 19       		.uleb128 0x19
+ 1035 00d6 3C       		.uleb128 0x3c
+ 1036 00d7 19       		.uleb128 0x19
+ 1037 00d8 01       		.uleb128 0x1
+ 1038 00d9 13       		.uleb128 0x13
+ 1039 00da 00       		.byte	0
+ 1040 00db 00       		.byte	0
+ 1041 00dc 10       		.uleb128 0x10
+ 1042 00dd 05       		.uleb128 0x5
+ 1043 00de 00       		.byte	0
+ 1044 00df 49       		.uleb128 0x49
+ 1045 00e0 13       		.uleb128 0x13
+ 1046 00e1 00       		.byte	0
+ 1047 00e2 00       		.byte	0
+ 1048 00e3 11       		.uleb128 0x11
+ 1049 00e4 2E       		.uleb128 0x2e
+ 1050 00e5 00       		.byte	0
+ 1051 00e6 3F       		.uleb128 0x3f
+ 1052 00e7 19       		.uleb128 0x19
+ 1053 00e8 03       		.uleb128 0x3
+ 1054 00e9 0E       		.uleb128 0xe
+ 1055 00ea 3A       		.uleb128 0x3a
+ 1056 00eb 0B       		.uleb128 0xb
+ 1057 00ec 3B       		.uleb128 0x3b
+ 1058 00ed 0B       		.uleb128 0xb
+ 1059 00ee 27       		.uleb128 0x27
+ 1060 00ef 19       		.uleb128 0x19
+ 1061 00f0 3C       		.uleb128 0x3c
+ 1062 00f1 19       		.uleb128 0x19
+ 1063 00f2 00       		.byte	0
+ 1064 00f3 00       		.byte	0
+ 1065 00f4 12       		.uleb128 0x12
+ 1066 00f5 2E       		.uleb128 0x2e
+ 1067 00f6 01       		.byte	0x1
+ 1068 00f7 3F       		.uleb128 0x3f
+ 1069 00f8 19       		.uleb128 0x19
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 22
+
+
+ 1070 00f9 03       		.uleb128 0x3
+ 1071 00fa 0E       		.uleb128 0xe
+ 1072 00fb 3A       		.uleb128 0x3a
+ 1073 00fc 0B       		.uleb128 0xb
+ 1074 00fd 3B       		.uleb128 0x3b
+ 1075 00fe 0B       		.uleb128 0xb
+ 1076 00ff 27       		.uleb128 0x27
+ 1077 0100 19       		.uleb128 0x19
+ 1078 0101 49       		.uleb128 0x49
+ 1079 0102 13       		.uleb128 0x13
+ 1080 0103 3C       		.uleb128 0x3c
+ 1081 0104 19       		.uleb128 0x19
+ 1082 0105 01       		.uleb128 0x1
+ 1083 0106 13       		.uleb128 0x13
+ 1084 0107 00       		.byte	0
+ 1085 0108 00       		.byte	0
+ 1086 0109 13       		.uleb128 0x13
+ 1087 010a 2E       		.uleb128 0x2e
+ 1088 010b 01       		.byte	0x1
+ 1089 010c 3F       		.uleb128 0x3f
+ 1090 010d 19       		.uleb128 0x19
+ 1091 010e 03       		.uleb128 0x3
+ 1092 010f 0E       		.uleb128 0xe
+ 1093 0110 3A       		.uleb128 0x3a
+ 1094 0111 0B       		.uleb128 0xb
+ 1095 0112 3B       		.uleb128 0x3b
+ 1096 0113 0B       		.uleb128 0xb
+ 1097 0114 27       		.uleb128 0x27
+ 1098 0115 19       		.uleb128 0x19
+ 1099 0116 3C       		.uleb128 0x3c
+ 1100 0117 19       		.uleb128 0x19
+ 1101 0118 00       		.byte	0
+ 1102 0119 00       		.byte	0
+ 1103 011a 00       		.byte	0
+ 1104              		.section	.debug_loc,"",%progbits
+ 1105              	.Ldebug_loc0:
+ 1106              	.LLST0:
+ 1107 0000 34000000 		.4byte	.LVL15
+ 1108 0004 76000000 		.4byte	.LVL25
+ 1109 0008 0100     		.2byte	0x1
+ 1110 000a 54       		.byte	0x54
+ 1111 000b 84000000 		.4byte	.LVL28
+ 1112 000f B8000000 		.4byte	.LFE35
+ 1113 0013 0100     		.2byte	0x1
+ 1114 0015 50       		.byte	0x50
+ 1115 0016 00000000 		.4byte	0
+ 1116 001a 00000000 		.4byte	0
+ 1117              		.section	.debug_aranges,"",%progbits
+ 1118 0000 24000000 		.4byte	0x24
+ 1119 0004 0200     		.2byte	0x2
+ 1120 0006 00000000 		.4byte	.Ldebug_info0
+ 1121 000a 04       		.byte	0x4
+ 1122 000b 00       		.byte	0
+ 1123 000c 0000     		.2byte	0
+ 1124 000e 0000     		.2byte	0
+ 1125 0010 00000000 		.4byte	.LFB34
+ 1126 0014 AC000000 		.4byte	.LFE34-.LFB34
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 23
+
+
+ 1127 0018 00000000 		.4byte	.LFB35
+ 1128 001c B8000000 		.4byte	.LFE35-.LFB35
+ 1129 0020 00000000 		.4byte	0
+ 1130 0024 00000000 		.4byte	0
+ 1131              		.section	.debug_ranges,"",%progbits
+ 1132              	.Ldebug_ranges0:
+ 1133 0000 00000000 		.4byte	.LFB34
+ 1134 0004 AC000000 		.4byte	.LFE34
+ 1135 0008 00000000 		.4byte	.LFB35
+ 1136 000c B8000000 		.4byte	.LFE35
+ 1137 0010 00000000 		.4byte	0
+ 1138 0014 00000000 		.4byte	0
+ 1139              		.section	.debug_line,"",%progbits
+ 1140              	.Ldebug_line0:
+ 1141 0000 26010000 		.section	.debug_str,"MS",%progbits,1
+ 1141      02009400 
+ 1141      00000201 
+ 1141      FB0E0D00 
+ 1141      01010101 
+ 1142              	.LASF6:
+ 1143 0000 6C6F6E67 		.ascii	"long long int\000"
+ 1143      206C6F6E 
+ 1143      6720696E 
+ 1143      7400
+ 1144              	.LASF38:
+ 1145 000e 6973725F 		.ascii	"isr_Timed_StartEx\000"
+ 1145      54696D65 
+ 1145      645F5374 
+ 1145      61727445 
+ 1145      7800
+ 1146              	.LASF18:
+ 1147 0020 54696D65 		.ascii	"TimedIsr\000"
+ 1147      64497372 
+ 1147      00
+ 1148              	.LASF3:
+ 1149 0029 73686F72 		.ascii	"short unsigned int\000"
+ 1149      7420756E 
+ 1149      7369676E 
+ 1149      65642069 
+ 1149      6E7400
+ 1150              	.LASF22:
+ 1151 003c 63757272 		.ascii	"currentRPM\000"
+ 1151      656E7452 
+ 1151      504D00
+ 1152              	.LASF8:
+ 1153 0047 756E7369 		.ascii	"unsigned int\000"
+ 1153      676E6564 
+ 1153      20696E74 
+ 1153      00
+ 1154              	.LASF13:
+ 1155 0054 666C6F61 		.ascii	"float\000"
+ 1155      7400
+ 1156              	.LASF1:
+ 1157 005a 756E7369 		.ascii	"unsigned char\000"
+ 1157      676E6564 
+ 1157      20636861 
+ 1157      7200
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 24
+
+
+ 1158              	.LASF12:
+ 1159 0068 696E7431 		.ascii	"int16\000"
+ 1159      3600
+ 1160              	.LASF5:
+ 1161 006e 6C6F6E67 		.ascii	"long unsigned int\000"
+ 1161      20756E73 
+ 1161      69676E65 
+ 1161      6420696E 
+ 1161      7400
+ 1162              	.LASF9:
+ 1163 0080 75696E74 		.ascii	"uint8\000"
+ 1163      3800
+ 1164              	.LASF24:
+ 1165 0086 626C696E 		.ascii	"blink\000"
+ 1165      6B00
+ 1166              	.LASF33:
+ 1167 008c 4144435F 		.ascii	"ADC_GetResult16\000"
+ 1167      47657452 
+ 1167      6573756C 
+ 1167      74313600 
+ 1168              	.LASF32:
+ 1169 009c 4144435F 		.ascii	"ADC_IsEndConversion\000"
+ 1169      4973456E 
+ 1169      64436F6E 
+ 1169      76657273 
+ 1169      696F6E00 
+ 1170              	.LASF14:
+ 1171 00b0 646F7562 		.ascii	"double\000"
+ 1171      6C6500
+ 1172              	.LASF36:
+ 1173 00b7 2E5C6D61 		.ascii	".\\main.c\000"
+ 1173      696E2E63 
+ 1173      00
+ 1174              	.LASF10:
+ 1175 00c0 75696E74 		.ascii	"uint16\000"
+ 1175      313600
+ 1176              	.LASF11:
+ 1177 00c7 75696E74 		.ascii	"uint32\000"
+ 1177      333200
+ 1178              	.LASF19:
+ 1179 00ce 6D61696E 		.ascii	"main\000"
+ 1179      00
+ 1180              	.LASF21:
+ 1181 00d3 74617267 		.ascii	"targetRPM\000"
+ 1181      65745250 
+ 1181      4D00
+ 1182              	.LASF7:
+ 1183 00dd 6C6F6E67 		.ascii	"long long unsigned int\000"
+ 1183      206C6F6E 
+ 1183      6720756E 
+ 1183      7369676E 
+ 1183      65642069 
+ 1184              	.LASF28:
+ 1185 00f4 4144435F 		.ascii	"ADC_Start\000"
+ 1185      53746172 
+ 1185      7400
+ 1186              	.LASF16:
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 25
+
+
+ 1187 00fe 63796973 		.ascii	"cyisraddress\000"
+ 1187      72616464 
+ 1187      72657373 
+ 1187      00
+ 1188              	.LASF26:
+ 1189 010b 50574D5F 		.ascii	"PWM_WritePeriod\000"
+ 1189      57726974 
+ 1189      65506572 
+ 1189      696F6400 
+ 1190              	.LASF17:
+ 1191 011b 73697A65 		.ascii	"sizetype\000"
+ 1191      74797065 
+ 1191      00
+ 1192              	.LASF29:
+ 1193 0124 4144435F 		.ascii	"ADC_StartConvert\000"
+ 1193      53746172 
+ 1193      74436F6E 
+ 1193      76657274 
+ 1193      00
+ 1194              	.LASF27:
+ 1195 0135 4C45445F 		.ascii	"LED_G_Write\000"
+ 1195      475F5772 
+ 1195      69746500 
+ 1196              	.LASF20:
+ 1197 0141 6865616C 		.ascii	"health\000"
+ 1197      746800
+ 1198              	.LASF35:
+ 1199 0148 474E5520 		.ascii	"GNU C 4.9.3 20150303 (release) [ARM/embedded-4_9-br"
+ 1199      4320342E 
+ 1199      392E3320 
+ 1199      32303135 
+ 1199      30333033 
+ 1200 017b 616E6368 		.ascii	"anch revision 221220] -mcpu=cortex-m0 -mthumb -g -O"
+ 1200      20726576 
+ 1200      6973696F 
+ 1200      6E203232 
+ 1200      31323230 
+ 1201 01ae 67202D66 		.ascii	"g -ffunction-sections -ffat-lto-objects\000"
+ 1201      66756E63 
+ 1201      74696F6E 
+ 1201      2D736563 
+ 1201      74696F6E 
+ 1202              	.LASF31:
+ 1203 01d6 4C45445F 		.ascii	"LED_R_Write\000"
+ 1203      525F5772 
+ 1203      69746500 
+ 1204              	.LASF2:
+ 1205 01e2 73686F72 		.ascii	"short int\000"
+ 1205      7420696E 
+ 1205      7400
+ 1206              	.LASF30:
+ 1207 01ec 50574D5F 		.ascii	"PWM_Start\000"
+ 1207      53746172 
+ 1207      7400
+ 1208              	.LASF37:
+ 1209 01f6 433A5C77 		.ascii	"C:\\work\\PSoC4\\VertushkaAnalog\\VertushkaAnalog.c"
+ 1209      6F726B5C 
+ARM GAS  C:\Users\Svilen\AppData\Local\Temp\cc4HjCTm.s 			page 26
+
+
+ 1209      50536F43 
+ 1209      345C5665 
+ 1209      72747573 
+ 1210 0225 7964736E 		.ascii	"ydsn\000"
+ 1210      00
+ 1211              	.LASF4:
+ 1212 022a 6C6F6E67 		.ascii	"long int\000"
+ 1212      20696E74 
+ 1212      00
+ 1213              	.LASF15:
+ 1214 0233 63686172 		.ascii	"char\000"
+ 1214      00
+ 1215              	.LASF0:
+ 1216 0238 7369676E 		.ascii	"signed char\000"
+ 1216      65642063 
+ 1216      68617200 
+ 1217              	.LASF25:
+ 1218 0244 456E6162 		.ascii	"EnablePWM_Write\000"
+ 1218      6C655057 
+ 1218      4D5F5772 
+ 1218      69746500 
+ 1219              	.LASF23:
+ 1220 0254 70726576 		.ascii	"prevRPM\000"
+ 1220      52504D00 
+ 1221              	.LASF34:
+ 1222 025c 43794465 		.ascii	"CyDelay\000"
+ 1222      6C617900 
+ 1223              		.ident	"GCC: (GNU Tools for ARM Embedded Processors) 4.9.3 20150303 (release) [ARM/embedded-4_9-br
