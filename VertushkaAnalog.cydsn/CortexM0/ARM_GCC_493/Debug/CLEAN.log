@@ -1,4 +1,4 @@
---------------- Clean Started: 11/24/2020 23:11:05 Project: VertushkaAnalog, Configuration: ARM GCC 4.9-2015-q1-update Debug ---------------
+--------------- Clean Started: 11/29/2020 15:38:12 Project: VertushkaAnalog, Configuration: ARM GCC 4.9-2015-q1-update Debug ---------------
 Deleting file ".\CortexM0\ARM_GCC_493\Debug\main.o"
 Deleting file ".\CortexM0\ARM_GCC_493\Debug\cyfitter_cfg.o"
 Deleting file ".\CortexM0\ARM_GCC_493\Debug\cymetadata.o"
@@ -43,4 +43,4 @@ Deleting file ".\VertushkaAnalog_timing.html"
 Deleting file ".\CortexM0\ARM_GCC_493\Debug\.deps\C_FILE.P"
 Deleting file ".\CortexM0\ARM_GCC_493\Debug\.deps\ARM_C_FILE.P"
 Deleting file ".\CortexM0\ARM_GCC_493\Debug\.deps\GNU_ARM_ASM_FILE.P"
---------------- Clean Succeeded: 11/24/2020 23:11:05 ---------------
+--------------- Clean Succeeded: 11/29/2020 15:38:12 ---------------

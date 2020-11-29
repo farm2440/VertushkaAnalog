@@ -11,10 +11,28 @@
 */
 #include <project.h>
 
-#define MAX_RPM 1400
-#define MIN_RPM 40
+#define RPM_MAX 60.0f
+#define RPM_MIN 6.0f
+#define ADC_MAX 1400
+#define ADC_MIN 40
+#define RPM_CHANGE_STEP 2.0f
+
+float k,p;
+/* 
+коефициентите k и p за преобразуване на показания от АЦП към оботроти
+    RPM = k * ADC + p
+    k=(RPM_MAX-RPM_MIN)/(ADC_MAX-ADC_MIN)
+    p=RPM_MIN-k * ADC_MIN
+*/
+
+#define CLOCK 1000000 //Честота на Clock в херци
+#define PPR 10000 // Настройка на контролера на стъпковия мотор - импулси на оборот
+
+uint32 pCoef = (CLOCK/PPR)*60;  //PeriodPWM= pCoef/RPM
+uint16 pwm_period;
+
 #define MAX_HEALTH 5
-#define RPM_CHANGE_STEP 20
+
 
 uint32 health = 0;
 uint16 targetRPM = 0;
@@ -23,8 +41,8 @@ uint16 prevRPM = 0;
 uint8 blink=0;
 
 CY_ISR_PROTO(TimedIsr);
-CY_ISR(TimedIsr)
-{
+CY_ISR(TimedIsr) //Това прекъсване се вика 10 пъти в секунда.
+{    
     //Ако няма връзка с управлението мотора спира
     if(health!=0) health--;
     else   targetRPM=0;
@@ -32,9 +50,10 @@ CY_ISR(TimedIsr)
     if(targetRPM==0) EnablePWM_Write(0);
     else EnablePWM_Write(1);
 
+    //При намаляне на оборотите новата стойност се отработва веднага
     if(targetRPM < currentRPM)
     currentRPM=targetRPM;
-
+    //При увеличаване на оборотите новата стойност се постига плавно за да няма ударно ускорение
     if(targetRPM > currentRPM)
     {
         if((targetRPM-currentRPM)<RPM_CHANGE_STEP) 
@@ -45,7 +64,9 @@ CY_ISR(TimedIsr)
     
     if(currentRPM!=prevRPM)
     {
-        PWM_WritePeriod(1600-currentRPM);
+        pwm_period = (uint16) (pCoef/((uint32)currentRPM));
+        PWM_WritePeriod(pwm_period);
+        PWM_WriteCompare(pwm_period/2);
         prevRPM=currentRPM;
     }
     
@@ -71,13 +92,6 @@ CY_ISR(TimedIsr)
 
 int main()
 {
-        
-    // Max RPM = 255, Limit 120 rpm
-    // Motor 800 pulses per rotation, 204000 pulses per minute, 
-    // 3400 pulses per sec for 255 rpm
-    // PWM Period = 7500/RPM    
-   
-    
     ADC_Start();
     ADC_StartConvert();
     PWM_Start();
@@ -97,9 +111,13 @@ int main()
         CyDelay(100);
         LED_R_Write(1);
         CyDelay(100);
-    }while(adc>35);
+    }while(adc>(ADC_MIN-1));
     EnablePWM_Write(1);
     LED_R_Write(1);
+    
+    //Изчисляват се коефициентите k и p за преобразуване на показания от АЦП към оботроти
+    k =(RPM_MAX-RPM_MIN)/((float)ADC_MAX-(float)ADC_MIN);
+    p = RPM_MIN-k * (float)ADC_MIN;
     
     isr_Timed_StartEx(TimedIsr);
     CyGlobalIntEnable; /* Enable global interrupts. */
@@ -109,19 +127,15 @@ int main()
 
     for(;;)
     {
-        /* Прочитане на ADC */
+        /* Прочитане на ADC и задаване на обороти*/
         ADC_IsEndConversion(ADC_WAIT_FOR_RESULT);
         adc = ADC_GetResult16(0);
         
-        if(adc!=0)
-        {
-            if(adc<MIN_RPM) targetRPM = 0;
-            else 
-                if(adc>MAX_RPM) targetRPM = MAX_RPM;
-                else targetRPM = adc;
-            health = MAX_HEALTH;
-        }
-  
+        if(adc<ADC_MIN) targetRPM = 0;
+        else 
+            if(adc>ADC_MAX) targetRPM = RPM_MAX;
+            else targetRPM = adc*k + p;
+        health = MAX_HEALTH;
     }
 }
 

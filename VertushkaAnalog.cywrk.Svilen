@@ -156,23 +156,6 @@
 <v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\cy_lfclk\CyLFClk.c</v>
 <v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\cy_lfclk\CyLFClk.h</v>
 <v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\EnablePWM</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\EnablePWM\EnablePWM.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\EnablePWM\EnablePWM.h</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\EnablePWM\EnablePWM_PM.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\isr_Timed</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\isr_Timed\isr_Timed.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\isr_Timed\isr_Timed.h</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_G</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_G\LED_G.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_G\LED_G.h</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_G\LED_G_PM.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_R</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_R\LED_R.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_R\LED_R.h</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\LED_R\LED_R_PM.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\Pin_LED_G</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\Pin_LED_G\Pin_LED_G.c</v>
-<v>VertushkaAnalog\VertushkaAnalog\Generated_Source\PSoC4\Pin_LED_G\Pin_LED_G.h</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 <CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237 type_name="CyDesigner.Common.Base.Controls.CyTreeViewState" version="1" SelectedNodeId="">
@@ -241,8 +224,6 @@
 <VisibleNodeIds>
 <v>VertushkaAnalog</v>
 <v>VertushkaAnalog\VertushkaAnalog</v>
-<v>VertushkaAnalog\VertushkaAnalog\VertushkaAnalog.rpt</v>
-<v>VertushkaAnalog\VertushkaAnalog\VertushkaAnalog_timing.html</v>
 </VisibleNodeIds>
 </CyGuid_2a325b3b-c96a-4e9f-b7a0-2c44ecb5f237>
 </TreeStates>
@@ -314,7 +295,11 @@
 </userData>
 </CyGuid_fdba8dfd-b15b-4469-9bbb-9e40c3e70997>
 <Unloaded />
-<OpenDocs />
+<OpenDocs>
+<name v=".\VertushkaAnalog.cydsn\main.c" />
+<name v=".\VertushkaAnalog.cydsn\VertushkaAnalog.cydwr" />
+<name v=".\VertushkaAnalog.cydsn\TopDesign\TopDesign.cysch" />
+</OpenDocs>
 <config v="" />
 <AutoUpdate v="true" />
 </CyGuid_843a90a4-0c4b-4e44-991d-05e7fb117a21>

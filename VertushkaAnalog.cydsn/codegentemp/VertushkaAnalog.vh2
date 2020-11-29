@@ -2,7 +2,7 @@
 --	Conversion of VertushkaAnalog.v to vh2:
 --
 --	Cypress Semiconductor - WARP Version 6.3 IR 41
---	Tue Nov 24 22:17:23 2020
+--	Sun Nov 29 15:36:05 2020
 --
 
 USE cypress.cypress.all;
@@ -992,7 +992,7 @@ Clock:cy_clock_v1_0
 		id=>"56c3deee-ca51-44fd-ab27-178bc9012dc4",
 		source_clock_id=>"",
 		divisor=>0,
-		period=>"1785714285.71429",
+		period=>"1000000000",
 		is_direct=>'0',
 		is_digital=>'1')
 	PORT MAP(clock_out=>Net_46,

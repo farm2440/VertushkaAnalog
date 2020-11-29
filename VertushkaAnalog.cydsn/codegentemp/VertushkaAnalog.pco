@@ -1,5 +1,5 @@
 # VertushkaAnalog
-# 2020-11-24 20:17:24Z
+# 2020-11-29 13:36:07Z
 
 # IO_2@[IOP=(3)][IoId=(2)] is reserved: SWDDebugEnabled
 dont_use_io iocell 3 2
